@@ -1,38 +1,56 @@
-const {app, BrowserWindow} = require('electron');
-const fs = require("file-system");
 
-//const {app, BrowserWindow1} = require('electron');
-const url = require('url');
-var path = require("path");
-let win = null;
-function boot() {
-  //lage et nytt vindu
-  win = new BrowserWindow({
+const { app, BrowserWindow, ipcMain } = require('electron');
+
+const { autoUpdater } = require('electron-updater');
+
+let mainWindow;
+
+function createWindow () {
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
     webPreferences: {
-      webSecurity: false,
-      nodeIntegration: true
+      nodeIntegration: true,
     },
-    width: 1920,
-    height: 1080,
-    icon: path.join(__dirname, "icon.png"),
-    minWidth: 640,
-    minHeight: 360,
-    frame: true,
-    backgroundColor: '#212121',
-  }
-  //  win = new BrowserWindow1({
-    //    width: 1920,
-    //    height: 1080,
-    //    frame: false
-    //  }
-    )
-    //Laste inn html koden til vinduet
-    
-    //win.setMenu(null);
-  win.loadURL(url.format({
-    pathname: 'main.html',
-    slashes: true
-  }))
+  });
+  mainWindow.loadFile('index.html');
+  mainWindow.on('closed', function () {
+    mainWindow = null;
+  });
 }
-//Fyr av funksjon 'boot' når loading er ferdigstilt.
-app.on('ready', boot);
+
+app.on('ready', () => {
+  createWindow();
+});
+
+app.on('window-all-closed', function () {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+app.on('activate', function () {
+  if (mainWindow === null) {
+    createWindow();
+  }
+});
+
+ipcMain.on('app_version', (event) => {
+  event.sender.send('app_version', { version: app.getVersion() });
+});
+
+mainWindow.once("ready-to-show", () => {
+  autoUpdater.checkForUpdatesAndNotify();
+})
+
+
+autoUpdater.on('update-available', () => {
+  mainWindow.webContents.send('update_available');
+});
+autoUpdater.on('update-downloaded', () => {
+  mainWindow.webContents.send('update_downloaded');
+});
+
+ipcMain.on('restart_app', () => {
+  autoUpdater.quitAndInstall();
+});

@@ -1,0 +1,4 @@
+appId: com.example.testApp
+publish:
+  provider: github
+  token: [0c86615fc2244d76781315269bd696640243aec6]
