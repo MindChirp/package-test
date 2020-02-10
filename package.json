@@ -5,14 +5,22 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron ."
+    "start": "electron .",
+    "build": "electron-builder build --win --publish never",
+    "deploy": "electron-builder build --win --publish always"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MindChirp/package-test.git"
   },
   "author": "Frikk O. Larsen",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^8.0.0"
+    "electron": "^8.0.0",
+    "electron-builder": "^22.3.2"
   },
   "dependencies": {
+    "electron-updater": "^4.2.0",
     "file-system": "^2.2.2"
   }
 }
